@@ -103,4 +103,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+data/img_align_celeba.zip
+data/img_align_celeba/
+data/list_attr_celeba.txt
+data/*.pth
+models/*.pth
+
 # End of https://www.gitignore.io/api/python
+

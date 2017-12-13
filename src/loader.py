@@ -135,6 +135,6 @@ class DataSampler(object):
         Get a batch of images in a range with their attributes.
         """
         assert i < j
-        batch_x = normalize_images(self.images[i:j].cuda())
-        batch_y = self.attributes[i:j].cuda()
+        batch_x = normalize_images(self.images[i:j])
+        batch_y = self.attributes[i:j]
         return Variable(batch_x, volatile=True), Variable(batch_y, volatile=True)

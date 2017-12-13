@@ -46,7 +46,7 @@ assert params.n_images >= 1 and params.n_interpolations >= 2
 
 # create logger / load trained model
 logger = create_logger(None)
-ae = torch.load(params.model_path).eval()
+ae = torch.load(params.model_path, map_location=lambda storage, loc: storage).eval()
 
 # restore main parameters
 params.debug = True
@@ -80,7 +80,7 @@ def get_interpolations(ae, images, attributes, params):
     outputs.append(images)
     outputs.append(ae.decode(enc_outputs, attributes)[-1])
     for alpha in alphas:
-        alpha = Variable(alpha.unsqueeze(0).expand((len(images), 2)).cuda())
+        alpha = Variable(alpha.unsqueeze(0).expand((len(images), 2)))
         outputs.append(ae.decode(enc_outputs, alpha)[-1])
 
     # return stacked images
