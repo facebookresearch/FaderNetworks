@@ -11,6 +11,7 @@ import torch
 from torch.autograd import Variable
 from logging import getLogger
 
+from studio import fs_tracker
 
 logger = getLogger()
 
@@ -50,10 +51,16 @@ def load_images(params):
     Load celebA dataset.
     """
     # load data
-    images_filename = 'images_%i_%i_20000.pth' if params.debug else 'images_%i_%i.pth'
-    images_filename = images_filename % (params.img_sz, params.img_sz)
-    images = torch.load(os.path.join(DATA_PATH, images_filename))
-    attributes = torch.load(os.path.join(DATA_PATH, 'attributes.pth'))
+    # images_filename = 'images_%i_%i_20000.pth' if params.debug else 'images_%i_%i.pth'
+    
+    # images_filename = images_filename % (params.img_sz, params.img_sz)
+    # images_filename = fs_tracker.get_artifact('images')
+
+    # images = torch.load(os.path.join(DATA_PATH, images_filename))
+    # attributes = torch.load(os.path.join(DATA_PATH, 'attributes.pth'))
+
+    images = torch.load(fs_tracker.get_artifact('images'))
+    attributes = torch.load(fs_tracker.get_artifact('attributes'))
 
     # parse attributes
     attrs = []
@@ -119,14 +126,18 @@ class DataSampler(object):
         idx = torch.LongTensor(bs).random_(len(self.images))
 
         # select images / attributes
+        # batch_x = normalize_images(self.images.index_select(0, idx))
+        # batch_y = self.attributes.index_select(0, idx)
         batch_x = normalize_images(self.images.index_select(0, idx).cuda())
         batch_y = self.attributes.index_select(0, idx).cuda()
 
         # data augmentation
         if self.v_flip and np.random.rand() <= 0.5:
+            # batch_x = batch_x.index_select(2, torch.arange(batch_x.size(2) - 1, -1, -1).long())
             batch_x = batch_x.index_select(2, torch.arange(batch_x.size(2) - 1, -1, -1).long().cuda())
         if self.h_flip and np.random.rand() <= 0.5:
             batch_x = batch_x.index_select(3, torch.arange(batch_x.size(3) - 1, -1, -1).long().cuda())
+            # batch_x = batch_x.index_select(3, torch.arange(batch_x.size(3) - 1, -1, -1).long())
 
         return Variable(batch_x, volatile=False), Variable(batch_y, volatile=False)
 
@@ -135,6 +146,8 @@ class DataSampler(object):
         Get a batch of images in a range with their attributes.
         """
         assert i < j
-        batch_x = normalize_images(self.images[i:j])
-        batch_y = self.attributes[i:j]
+        # batch_x = normalize_images(self.images[i:j])
+        # batch_y = self.attributes[i:j]
+        batch_x = normalize_images(self.images[i:j]).cuda()
+        batch_y = self.attributes[i:j].cuda()
         return Variable(batch_x, volatile=True), Variable(batch_y, volatile=True)
