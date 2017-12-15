@@ -60,12 +60,12 @@ cd models
 
 ## Train your own models
 
-### Train a classifier
+### Train a classifier (studiofied)
 To train your own model you first need to train a classifier to let the model evaluate the swap quality during the training. Training a good classifier is relatively simple for most attributes, and a good model can be trained in a few minutes. We provide a trained classifier for all attributes in `models/classifier256.pth`. Note that the classifier does not need to be state-of-the-art, it is not used during the training process, but is just here to monitor the swap quality. If you want to train your own classifier, you can run `classifier.py`, using the following parameters:
 
 
 ```bash
-python classifier.py
+studio run [--cloud=ec2 --gpus=1] -co=s3://fadernetworks/attributes.pth:attributes --capture-once=s3://fadernetworks/images_256_256_20000.pth:images classifier.py
 
 # Main parameters
 --img_sz 256                  # image size
@@ -91,8 +91,11 @@ python classifier.py
 --debug False                 # debug mode (if True, load a small subset of the dataset)
 ```
 
-
 ### Train a Fader Network
+
+```bash
+studio run --cloud=ec2spot --num-workers=1 --gpus=1 --reuse=1513292897_4cf1eb0d-fec5-44e4-80a3-b34b0e9dce34/workspace:eval_clf --capture-once=s3://fadernetworks/attributes.pth:attributes --capture-once=s3://fadernetworks/images_256_256_20000.pth:images train.py --debug 1 --eval_clf models/default/js2wouvtiz/best.pth
+```
 
 You can train a Fader Network with `train.py`. The autoencoder can receive feedback from:
 - The image reconstruction loss

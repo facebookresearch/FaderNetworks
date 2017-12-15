@@ -15,6 +15,8 @@ from src.model import AutoEncoder, LatentDiscriminator, PatchDiscriminator, Clas
 from src.training import Trainer
 from src.evaluation import Evaluator
 
+from studio import fs_tracker
+
 
 # parse parameters
 parser = argparse.ArgumentParser(description='Images autoencoder')
@@ -118,7 +120,9 @@ ae = AutoEncoder(params).cuda()
 lat_dis = LatentDiscriminator(params).cuda() if params.n_lat_dis else None
 ptc_dis = PatchDiscriminator(params).cuda() if params.n_ptc_dis else None
 clf_dis = Classifier(params).cuda() if params.n_clf_dis else None
-eval_clf = torch.load(params.eval_clf).cuda().eval()
+
+eval_clf_workspace = fs_tracker.get_artifact('eval_clf') or '.'
+eval_clf = torch.load(os.path.join(eval_clf_workspace, params.eval_clf)).cuda().eval()
 
 # trainer / evaluator
 trainer = Trainer(ae, lat_dis, ptc_dis, clf_dis, train_data, params)
